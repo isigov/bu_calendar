@@ -1,0 +1,6 @@
+framework module Pods_BU_Schedule {
+  umbrella header "Pods-BU Schedule-umbrella.h"
+
+  export *
+  module * { export * }
+}
