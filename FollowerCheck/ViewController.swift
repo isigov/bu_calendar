@@ -38,6 +38,9 @@ class ViewController: UIViewController, UIWebViewDelegate, UITableViewDataSource
     let signInButton = GIDSignInButton()
     let output = UITextView()
 
+    /*
+    Google sign-in callback
+    */
     func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!,
               withError error: Error!) {
         if let error = error {
@@ -64,28 +67,13 @@ class ViewController: UIViewController, UIWebViewDelegate, UITableViewDataSource
         alert.addAction(ok)
         present(alert, animated: true, completion: nil)
     }
-    
+    /*
+     Start the login process as soon as the view finishes loading
+     */
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        doLogin(userN: user, passW: pass)
-        // Configure Google Sign-in.
-//        GIDSignIn.sharedInstance().delegate = self
-//        GIDSignIn.sharedInstance().uiDelegate = self
-//        GIDSignIn.sharedInstance().scopes = scopes
-//        GIDSignIn.sharedInstance().signInSilently()
-//
-//        // Add the sign-in button.
-//        view.addSubview(signInButton)
-//
-//        // Add a UITextView to display output.
-//        output.frame = view.bounds
-//        output.isEditable = false
-//        output.contentInset = UIEdgeInsets(top: 20, left: 0, bottom: 20, right: 0)
-//        output.autoresizingMask = [.flexibleHeight, .flexibleWidth]
-//        output.isHidden = true
-//        view.addSubview(output);
-        //NavBar.hidden = true
+        doLogin()
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -98,6 +86,9 @@ class ViewController: UIViewController, UIWebViewDelegate, UITableViewDataSource
         cell.textLabel?.text = fruit
         return cell
     }
+    /*
+    Combine separate date & time Date objects into a single object
+    */
     func combineDateWithTime(date: Date, time: Date) -> Date? {
         let calendar = NSCalendar.current
         
@@ -114,6 +105,9 @@ class ViewController: UIViewController, UIWebViewDelegate, UITableViewDataSource
         //mergedComponments.timeZone = TimeZone(abbreviation: "EST")
         return calendar.date(from: mergedComponments)
     }
+    /*
+    If a user taps on a table item, add a checkbox to that item & vice versa
+    */
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: false)
         var cell: UITableViewCell = tableView.cellForRow(at: indexPath)!
@@ -126,8 +120,10 @@ class ViewController: UIViewController, UIWebViewDelegate, UITableViewDataSource
         
         
     }
-    
-    func doLogin(userN: String, passW: String)
+    /*
+    Navigates the web view to the main Student Link page
+    */
+    func doLogin()
     {
         statusLbl.isHidden = false
         statusInd.startAnimating()
@@ -139,49 +135,12 @@ class ViewController: UIViewController, UIWebViewDelegate, UITableViewDataSource
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
-//        if(!auth)
-//        {
-//            auth = true
-//
-//            let storage = HTTPCookieStorage.shared
-//            for cookie in storage.cookies! {
-//                storage.deleteCookie(cookie)
-//            }
-//
-//            let alertController = UIAlertController(title: "User", message: "Enter your BU Username/Password", preferredStyle: .alert)
-//
-//            let confirmAction = UIAlertAction(title: "Confirm", style: .default) { (_) in
-//                let field = alertController.textFields![0] as UITextField
-//                self.user = field.text!
-//                let field2 = alertController.textFields![1] as UITextField
-//                self.pass = field2.text!
-//
-//                let url = URL (string: "https://www.bu.edu/link/bin/uiscgi_studentlink.pl/1468612320?ModuleName=allsched.pl")
-//                let requestObj = URLRequest(url: url!)
-//                self.webview.delegate = self
-//                self.webview.loadRequest(requestObj)
-//            }
-//
-//            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { (_) in }
-//
-//            alertController.addTextField { (textField) in
-//                textField.placeholder = "Username"
-//            }
-//            alertController.addTextField { (textField2) in
-//                textField2.placeholder = "Password"
-//                textField2.isSecureTextEntry = true
-//            }
-//
-//            alertController.addAction(confirmAction)
-//            alertController.addAction(cancelAction)
-//
-//            self.present(alertController, animated: true, completion: nil)
-//
-//        }
+
     }
 
-
+    /*
+    If the user checks the Google Cal checkbox, sign them in
+    */
     @IBAction func googleValChanged(_ sender: Any) {
         if(googleCal.isOn){
             GIDSignIn.sharedInstance().delegate = self
@@ -191,10 +150,15 @@ class ViewController: UIViewController, UIWebViewDelegate, UITableViewDataSource
         }
         
     }
+    /*
+     Adds currently selected classes to Google Cal and/or Apple cal
+     */
     @IBAction func addCal(_ sender: Any) {
         for cell in self.table.visibleCells as! Array<UITableViewCell>{
+            //Iterate over all table cells
             if(cell.accessoryType == UITableViewCellAccessoryType.checkmark)
             {
+                //Class data is stored in global lists, parse the data into strings we can use
                 let index: Int = (self.table.indexPath(for: cell)?.row)!
                 let className = self.classes[index]
                 let classDays = self.class_times[index].components(separatedBy: " ")[0]
@@ -202,6 +166,8 @@ class ViewController: UIViewController, UIWebViewDelegate, UITableViewDataSource
                 let classTimesEnd = self.class_times[index].components(separatedBy: " - ")[1].trimmingCharacters(in: .whitespacesAndNewlines)
                 let classLoc = self.class_loc[index]
                 
+                //Apple Cal uses a recurrence array, while Google Cal uses a recurrence string
+                //Add the necessary days of the week
                 var daysofweek: [EKRecurrenceDayOfWeek] = []
                 var gcaldays = ""
                 
@@ -226,20 +192,23 @@ class ViewController: UIViewController, UIWebViewDelegate, UITableViewDataSource
                     gcaldays += "FR,"
                 }
                 gcaldays = String(gcaldays.characters.dropLast(1))
-                debugPrint(gcaldays)
+
                 let startDate = Calendar.current.startOfDay(for: Date())
                 let store = EKEventStore()
+                
                 var dateFormat = DateFormatter()
                 dateFormat.dateFormat = "yyyy-MM-dd"
                 let timeFormatter = DateFormatter()
                 timeFormatter.dateFormat = "hh:mma"
                 timeFormatter.timeZone = NSTimeZone.local
+                
+                //Parse start/end times to a timeFormatter object and combine them with today's date
                 var start = timeFormatter.date(from: classTimesBegin)
                 var end = timeFormatter.date(from: classTimesEnd)
                 start = combineDateWithTime(date: startDate, time: start!)
                 end = combineDateWithTime(date: startDate, time: end!)
                 
-
+                //If Apple Cal checkbox is checked, ask for access to the local calendar and try to save the event
                 if(appleCal.isOn){
                     store.requestAccess(to: .event) {(granted, error) in
                         if !granted {
@@ -262,6 +231,7 @@ class ViewController: UIViewController, UIWebViewDelegate, UITableViewDataSource
                     }
 
                 }
+                //If Google Cal checkbox is checked, ask for access to the default calendar and try to save the event
                 if(googleCal.isOn){
                     let newEvent: GTLRCalendar_Event = GTLRCalendar_Event()
                     
@@ -280,9 +250,8 @@ class ViewController: UIViewController, UIWebViewDelegate, UITableViewDataSource
                     endEventDateTime.dateTime = endDateTime
                     endEventDateTime.timeZone = NSTimeZone.local.identifier
                     newEvent.end = endEventDateTime
-                    debugPrint(newEvent.start, newEvent.end)
                     newEvent.recurrence = ["RRULE:FREQ=WEEKLY;BYDAY=" + gcaldays]
-                    debugPrint(newEvent.recurrence)
+
                     let service: GTLRCalendarService = GTLRCalendarService()
                     let query =
                         GTLRCalendarQuery_EventsInsert.query(withObject: newEvent, calendarId: "primary")
@@ -290,6 +259,7 @@ class ViewController: UIViewController, UIWebViewDelegate, UITableViewDataSource
                 }
             }
         }
+        //Clean up remaining classes from table
         classes.removeAll()
         class_loc.removeAll()
         class_times.removeAll()
@@ -299,10 +269,15 @@ class ViewController: UIViewController, UIWebViewDelegate, UITableViewDataSource
         showAlert(title: "Success!", message: "Successfully added specified classes to calendar.")
     }
     
+    /*
+     Callback for webView finishing loading a page
+     */
     func webViewDidFinishLoad(_ webView : UIWebView) {
-
+        //URL of the current page, used for distinguishing between different phases
         let text = webView.request?.url?.absoluteString
         
+        //If we have class URLs, we are at the last step of the process
+        //Need to visit every URL and grab class information
         if urlArray.count > 0
         {
             urlArray.remove(at: 0)
@@ -316,6 +291,8 @@ class ViewController: UIViewController, UIWebViewDelegate, UITableViewDataSource
             
             let classTime: String = rangeSplit[0]
             let classLoc: String = rangeSplit[1].components(separatedBy: "<p class=\"ui-li-desc\">")[1] + rangeSplit[2].components(separatedBy: "<p class=\"ui-li-desc\">")[1] + ", " + rangeSplit[3].components(separatedBy: "<p class=\"ui-li-desc\">")[1]
+            
+            //Add the harvested information to our arrays and update the table
             classes.append(className)
             class_times.append(classTime)
             class_loc.append(classLoc)
@@ -323,15 +300,19 @@ class ViewController: UIViewController, UIWebViewDelegate, UITableViewDataSource
             table.insertRows(at: [IndexPath(row: classes.count-1, section: 0)], with: .automatic)
             table.endUpdates()
             
+            //Navigate to the next class URL
             if urlArray.count > 0 {
                 let requestObj = URLRequest(url: URL(string: urlArray[0])!);
                 self.webview.loadRequest(requestObj)
             }
             else{
+                //Stop the indicator when finished
                 statusInd.stopAnimating()
                 statusLbl.isHidden = true
             }
         }
+        //This is the authentication phase
+        //Entering the user/pass and clicking the button
         else if text?.range(of:"SAML2") != nil
         {
             let doc:String = self.webview.stringByEvaluatingJavaScript(from: "document.documentElement.outerHTML")!
@@ -345,6 +326,7 @@ class ViewController: UIViewController, UIWebViewDelegate, UITableViewDataSource
             self.webview.stringByEvaluatingJavaScript(from: "document.getElementsByClassName('input-text')[1].value='" + self.pass + "';")
             self.webview.stringByEvaluatingJavaScript(from: "document.getElementsByTagName('button')[0].click();")
         }
+        //We have successfully logged in, add the URL for every class to our list for the next step
         else if text?.range(of: "mobile/schedule/class") != nil
         {
             
@@ -363,6 +345,7 @@ class ViewController: UIViewController, UIWebViewDelegate, UITableViewDataSource
             self.webview.loadRequest(requestObj)
             
         }
+        //We have a bad login, try again
         else if text?.range(of: "uiscgi_studentlink.pl") != nil
         {
             let url = URL (string: "https://www.bu.edu/link/bin/uiscgi_studentlink.pl?ModuleName=mobile/schedule/class/_start.pl");
