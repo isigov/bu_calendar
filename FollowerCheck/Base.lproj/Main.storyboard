@@ -9,10 +9,10 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Login View Controller-->
+        <!--Login-->
         <scene sceneID="EyW-Ow-5YS">
             <objects>
-                <viewController id="s9u-tK-Zcu" customClass="LoginViewController" customModule="BU_Schedule" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="Login" title="Login" id="s9u-tK-Zcu" customClass="LoginViewController" customModule="BU_Schedule" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="lnZ-id-2md"/>
                         <viewControllerLayoutGuide type="bottom" id="lmH-7O-uOf"/>
@@ -71,11 +71,19 @@
                                     <action selector="loginSubmit:" destination="s9u-tK-Zcu" eventType="primaryActionTriggered" id="66c-YM-h3K"/>
                                 </connections>
                             </button>
+                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Bad login, try again" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bL4-lp-D67">
+                                <rect key="frame" x="100" y="184" width="174" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="1" green="0.14913141730000001" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </view>
                     <navigationItem key="navigationItem" id="3iD-gK-XGY"/>
                     <connections>
+                        <outlet property="errorLbl" destination="bL4-lp-D67" id="O7x-2e-wIm"/>
                         <outlet property="passWord" destination="EuP-OD-FD0" id="tya-Bg-uip"/>
                         <outlet property="userName" destination="v03-cD-Ar6" id="O5O-yd-rEw"/>
                     </connections>
@@ -212,7 +220,6 @@
         <!--Navigation Controller-->
         <scene sceneID="OLg-qh-HbL">
             <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="jN9-yr-Y6r" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" navigationBarHidden="YES" id="4C6-KF-QTk" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="F6n-DR-Kzf">
@@ -223,6 +230,7 @@
                         <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="jJC-sh-h3Z"/>
                     </connections>
                 </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="jN9-yr-Y6r" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="567" y="-453"/>
         </scene>

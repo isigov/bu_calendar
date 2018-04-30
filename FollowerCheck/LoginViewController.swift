@@ -11,12 +11,14 @@ import UIKit
 class LoginViewController: UIViewController {
     @IBOutlet weak var userName: UITextField!
     @IBOutlet weak var passWord: UITextField!
+    @IBOutlet weak var errorLbl: UILabel!
     
     @IBAction func loginSubmit(_ sender: UIButton) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let controller = storyboard.instantiateViewController(withIdentifier: "ClassView") as! ViewController
         controller.user = userName.text!
         controller.pass = passWord.text!
+        errorLbl.isHidden = true
         self.present(controller, animated: true, completion: nil)
     }
     override func viewDidLoad() {

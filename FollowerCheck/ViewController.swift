@@ -22,7 +22,8 @@ class ViewController: UIViewController, UIWebViewDelegate, UITableViewDataSource
     var user: String = ""
     var pass: String = ""
     var counter: Int32 = 0
-    var auth = false
+    
+    var bAuthenticated : Bool = false
     
     let cellIdentifier = "CellIdentifier"
 
@@ -170,30 +171,80 @@ class ViewController: UIViewController, UIWebViewDelegate, UITableViewDataSource
                 //Add the necessary days of the week
                 var daysofweek: [EKRecurrenceDayOfWeek] = []
                 var gcaldays = ""
+                var currentStart: Date = Date()
+                var closestDate: Int = 9999
                 
                 if classDays.range(of:  "Mon") != nil {
+                    let mondayEvent = DateComponents(weekday: 2)
+                    let nextDate = Calendar.current.nextDate(after: Date(), matching: mondayEvent, matchingPolicy: .strict)
+                    let difference = abs(Calendar.current.dateComponents([.hour], from: nextDate!, to: Date()).hour!)
+                    if (difference > 0) && (difference < closestDate) {
+                        closestDate = difference
+                        currentStart = nextDate!
+                    }
+                    
+                    //debugPrint(nextDate, difference, currentStart, closestDate)
+                    
                     daysofweek.append(EKRecurrenceDayOfWeek(.monday))
                     gcaldays += "MO,"
                 }
                 if classDays.range(of:  "Tue") != nil {
+                    let mondayEvent = DateComponents(weekday: 3)
+                    let nextDate = Calendar.current.nextDate(after: Date(), matching: mondayEvent, matchingPolicy: .strict)
+                    let difference = abs(Calendar.current.dateComponents([.hour], from: nextDate!, to: Date()).hour!)
+                    if (difference > 0) && (difference < closestDate) {
+                        closestDate = difference
+                        currentStart = nextDate!
+                    }
+                    
+                    //debugPrint(nextDate, difference, currentStart, closestDate)
                     daysofweek.append(EKRecurrenceDayOfWeek(.tuesday))
                     gcaldays += "TU,"
                 }
                 if classDays.range(of:  "Wed") != nil {
+                    let mondayEvent = DateComponents(weekday: 4)
+                    let nextDate = Calendar.current.nextDate(after: Date(), matching: mondayEvent, matchingPolicy: .strict)
+                    let difference = abs(Calendar.current.dateComponents([.hour], from: nextDate!, to: Date()).hour!)
+                    if (difference > 0) && (difference < closestDate) {
+                        closestDate = difference
+                        currentStart = nextDate!
+                    }
+                    
+                    //debugPrint(nextDate, difference, currentStart, closestDate)
+                    
                     daysofweek.append(EKRecurrenceDayOfWeek(.wednesday))
                     gcaldays += "WE,"
                 }
                 if classDays.range(of:  "Thu") != nil {
+                    let mondayEvent = DateComponents(weekday: 5)
+                    let nextDate = Calendar.current.nextDate(after: Date(), matching: mondayEvent, matchingPolicy: .strict)
+                    let difference = abs(Calendar.current.dateComponents([.hour], from: nextDate!, to: Date()).hour!)
+                    if (difference > 0) && (difference < closestDate) {
+                        closestDate = difference
+                        currentStart = nextDate!
+                    }
+                    //debugPrint(nextDate, difference, currentStart, closestDate)
+                    
                     daysofweek.append(EKRecurrenceDayOfWeek(.thursday))
                     gcaldays += "TH,"
                 }
                 if classDays.range(of:  "Fri") != nil {
+                    let mondayEvent = DateComponents(weekday: 6)
+                    let nextDate = Calendar.current.nextDate(after: Date(), matching: mondayEvent, matchingPolicy: .strict)
+                    let difference = abs(Calendar.current.dateComponents([.hour], from: nextDate!, to: Date()).hour!)
+                    if (difference > 0) && (difference < closestDate) {
+                        closestDate = difference
+                        currentStart = nextDate!
+                    }
+                    
+                    //debugPrint(nextDate, difference, currentStart, closestDate)
+                    
                     daysofweek.append(EKRecurrenceDayOfWeek(.friday))
                     gcaldays += "FR,"
                 }
                 gcaldays = String(gcaldays.characters.dropLast(1))
 
-                let startDate = Calendar.current.startOfDay(for: Date())
+                let startDate = currentStart
                 let store = EKEventStore()
                 
                 var dateFormat = DateFormatter()
@@ -316,7 +367,15 @@ class ViewController: UIViewController, UIWebViewDelegate, UITableViewDataSource
         else if text?.range(of:"SAML2") != nil
         {
             let doc:String = self.webview.stringByEvaluatingJavaScript(from: "document.documentElement.outerHTML")!
+            
+            //We have a bad login
             if(doc.range(of: "entered") != nil){
+                let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                let controller = storyboard.instantiateViewController(withIdentifier: "Login") as! LoginViewController
+                //controller.userName.text = ""
+                //controller.passWord.text = ""
+                //controller.errorLbl.isHidden = false
+                self.present(controller, animated: true, completion: nil)
                 return
             }
             self.webview.stringByEvaluatingJavaScript(from: "document.getElementsByClassName('ui-link')[5].click()")
@@ -325,6 +384,7 @@ class ViewController: UIViewController, UIWebViewDelegate, UITableViewDataSource
             self.webview.stringByEvaluatingJavaScript(from: "document.getElementsByClassName('input-text')[0].value='" + self.user + "';")
             self.webview.stringByEvaluatingJavaScript(from: "document.getElementsByClassName('input-text')[1].value='" + self.pass + "';")
             self.webview.stringByEvaluatingJavaScript(from: "document.getElementsByTagName('button')[0].click();")
+            bAuthenticated = true
         }
         //We have successfully logged in, add the URL for every class to our list for the next step
         else if text?.range(of: "mobile/schedule/class") != nil
@@ -345,7 +405,7 @@ class ViewController: UIViewController, UIWebViewDelegate, UITableViewDataSource
             self.webview.loadRequest(requestObj)
             
         }
-        //We have a bad login, try again
+        //Desktop version loaded, switch to mobile
         else if text?.range(of: "uiscgi_studentlink.pl") != nil
         {
             let url = URL (string: "https://www.bu.edu/link/bin/uiscgi_studentlink.pl?ModuleName=mobile/schedule/class/_start.pl");
